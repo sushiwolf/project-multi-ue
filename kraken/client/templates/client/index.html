@@ -1,0 +1,69 @@
+<head>
+    <style>
+      #map {
+        height: 600px;
+        width: 100%;
+       }
+    </style>
+  </head>
+  <body>
+    <h3>Bienvenue</h3>
+    <div id="map"></div>
+    </br>
+    <center>
+      <form action="{% url "index" %}" method="post">
+          {% csrf_token %}
+          {{ form.as_p }}
+          <input type="submit" value="Lancer le PVC" />
+      </form>
+    </center>
+    <p>
+      <tr>
+        {% for l in villes %}
+             <td>{{l|safe}}<br></td>
+        {% endfor %}
+      </tr>
+    </p>
+    <script>
+      var villes_list = []
+      {% for l in villes %}
+        villes_list.push({{l|safe}});
+      {% endfor %}
+      function initMap() {
+        var parcoursTest = []
+        villes_list.forEach(function(element) {
+          parcoursTest.push(new google.maps.LatLng(element[1],element[2]))
+        })
+        parcoursTest.push(new google.maps.LatLng(villes_list[0][1],villes_list[0][2]))
+        var bourges = {lat: 47.081, lng: 2.399};
+
+        console.log(parcoursTest.lat);
+
+        var traceParcoursBus = new google.maps.Polyline({
+        	path: parcoursTest,//chemin du tracé
+        	strokeColor: "#FF0000",//couleur du tracé
+        	strokeOpacity: 1.0,//opacité du tracé
+        	strokeWeight: 2//grosseur du tracé
+        });
+
+        var map = new google.maps.Map(document.getElementById('map'), {
+          zoom: 6,
+          center: bourges
+        });
+
+        villes_list.forEach(function(element) {
+          var v = {lat: parseFloat(element[1]), lng: parseFloat(element[2])};
+          var marker = new google.maps.Marker({
+            position: v,
+            map: map
+          });
+        })
+
+
+        traceParcoursBus.setMap(map);
+      }
+    </script>
+    <script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBTLOfupDO5DZLLH9owu3NV9Bwt5ESyobs&callback=initMap">
+    </script>
+  </body>
